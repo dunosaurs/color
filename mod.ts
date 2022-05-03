@@ -28,35 +28,35 @@ export class Color {
   }
 
   /**
-   * Creates a color with a red, green, blue, and alpha value
+   * Creates a color with a hue, saturation, and lightness value
    */
   static hsl(h: number, s: number, l: number) {
     return new Color([Math.round(h), Math.round(s), Math.round(l)], "hsl");
   }
 
   /**
-   * Creates a color with a red, green, blue, and alpha value
+   * Creates a color with a hue, saturation, lightness, and alpha value
    */
   static hsla(h: number, s: number, l: number, a: number) {
     return new Color([Math.round(h), Math.round(s), Math.round(l)], "hsla", a);
   }
 
   /**
-   * Creates a color with a red, green, blue, and alpha value
+   * Creates a color with a hue, saturation, and value
    */
   static hsv(h: number, s: number, v: number) {
     return new Color([Math.round(h), Math.round(s), Math.round(v)], "hsv");
   }
 
   /**
-   * Creates a color with a red, green, blue, and alpha value
+   * Creates a color with a hue, saturation, value, and alpha
    */
   static hsva(h: number, s: number, v: number, a: number) {
     return new Color([Math.round(h), Math.round(s), Math.round(v)], "hsva", a);
   }
 
   /**
-   * Creates a color with a red, green, blue, and alpha value
+   * Creates a color with a cyan, magenta, yellow, and black value
    */
   static cmyk(c: number, m: number, y: number, k: number) {
     return new Color([
@@ -164,6 +164,15 @@ export class Color {
    * Converts from current type to rgba
    */
   rgba() {
+    if (this.type === "rgba") {
+      return Color.rgba(
+        this.channels[0],
+        this.channels[1],
+        this.channels[2],
+        this.transparency,
+      );
+    }
+
     const rgb = this.rgb().channels;
 
     return Color.rgba(rgb[0], rgb[1], rgb[2], this.transparency);
@@ -173,6 +182,10 @@ export class Color {
    * Converts from current type to hsl
    */
   hsl() {
+    if (this.type === "hsl") {
+      return Color.hsl(this.channels[0], this.channels[1], this.channels[2]);
+    }
+
     const rgb = this.rgba().channels;
 
     const r = rgb[0] / 255;
@@ -212,6 +225,14 @@ export class Color {
    * Converts from current type to hsla
    */
   hsla() {
+    if (this.type === "hsla") {
+      return Color.hsla(
+        this.channels[0],
+        this.channels[1],
+        this.channels[2],
+        this.transparency,
+      );
+    }
     const hsl = this.hsl().channels;
 
     return Color.hsla(hsl[0], hsl[1], hsl[2], this.transparency);
@@ -221,6 +242,10 @@ export class Color {
    * Converts from current type to hsv
    */
   hsv() {
+    if (this.type === "hsv") {
+      return Color.hsv(this.channels[0], this.channels[1], this.channels[2]);
+    }
+
     const rgb = this.rgba().channels;
 
     const r = rgb[0];
@@ -260,12 +285,33 @@ export class Color {
    * Converts from current type to hsva
    */
   hsva() {
+    if (this.type === "hsva") {
+      return Color.hsva(
+        this.channels[0],
+        this.channels[1],
+        this.channels[2],
+        this.transparency,
+      );
+    }
+
     const hsv = this.hsv().channels;
 
     return Color.hsva(hsv[0], hsv[1], hsv[2], this.transparency);
   }
 
+  /**
+   * Converts from current type to cmyk
+   */
   cmyk() {
+    if (this.type === "cmyk") {
+      return Color.cmyk(
+        this.channels[0],
+        this.channels[1],
+        this.channels[2],
+        this.channels[3],
+      );
+    }
+
     const rgb = this.rgba().channels;
     const r = rgb[0] / 255;
     const g = rgb[1] / 255;
@@ -308,6 +354,10 @@ export class Color {
   }
 
   // getters
+
+  /**
+   * Returns an object with each of the values as a key
+   */
   object() {
     const c = this.channels;
     switch (this.type) {
@@ -328,6 +378,9 @@ export class Color {
     }
   }
 
+  /**
+   * Returns an array with each of the channels as a key and a transparency if it is not 1
+   */
   array() {
     if (this.transparency === 1) {
       return this.channels;
@@ -336,12 +389,18 @@ export class Color {
     return [...this.channels, this.transparency];
   }
 
+  /**
+   * Returns the decimal representation of a color
+   */
   rgbNumber() {
     const hex = this.hex().substring(1);
 
     return parseInt(`0x${hex}`);
   }
 
+  /**
+   * Returns the hex string from a color
+   */
   hex() {
     const rgb = this.rgb().channels;
 
@@ -354,6 +413,9 @@ export class Color {
     }${(b.length === 1 ? "0" : "") + b}`;
   }
 
+  /**
+   * Returns the hex string from a color as well as the alpha channel
+   */
   hexa() {
     const rgb = this.rgb().channels;
 
@@ -367,28 +429,93 @@ export class Color {
     }${(b.length === 1 ? "0" : "") + b}${(a.length === 1 ? "0" : "") + a}`;
   }
 
+  /**
+   * Returns the red component of a color
+   */
   red() {
-    const rgb = this.rgb();
-
-    return rgb.channels[0];
+    return this.rgb().channels[0];
   }
 
+  /**
+   * Returns the green component of a color
+   */
   green() {
-    const rgb = this.rgb();
-
-    return rgb.channels[1];
+    return this.rgb().channels[1];
   }
 
+  /**
+   * Returns the blue component of a color
+   */
   blue() {
-    const rgb = this.rgb();
-
-    return rgb.channels[2];
+    return this.rgb().channels[2];
   }
 
+  /**
+   * Returns the alpha component of a color
+   */
   alpha() {
     return this.transparency;
   }
 
+  /**
+   * Returns the hue component of a color
+   */
+  hue() {
+    return this.hsl().channels[0];
+  }
+
+  /**
+   * Returns the saturation component of a color
+   */
+  saturation() {
+    return this.hsl().channels[1];
+  }
+
+  /**
+   * Returns the lightness component of a color
+   */
+  lightness() {
+    return this.hsl().channels[2];
+  }
+
+  /**
+   * Returns the value component of a color
+   */
+  value() {
+    return this.hsv().channels[2];
+  }
+
+  /**
+   * Returns the cyan component of a color
+   */
+  cyan() {
+    return this.cmyk().channels[0];
+  }
+
+  /**
+   * Returns the magenta component of a color
+   */
+  magenta() {
+    return this.cmyk().channels[1];
+  }
+
+  /**
+   * Returns the yellow component of a color
+   */
+  yellow() {
+    return this.cmyk().channels[2];
+  }
+
+  /**
+   * Returns the black component of a color
+   */
+  black() {
+    return this.cmyk().channels[3];
+  }
+
+  /**
+   * Returns a css string representation of a color
+   */
   string() {
     switch (this.type) {
       case "cmyk":
@@ -422,6 +549,9 @@ export class Color {
     }
   }
 
+  /**
+   * Returns the WCAG luminosity of the color
+   */
   luminosity() {
     const rgb = this.rgb().channels;
     const r = rgb[0] / 255;
@@ -435,12 +565,9 @@ export class Color {
     return 0.2126 * r_s + 0.7152 * g_s + 0.0722 * b_s;
   }
 
-  lum() {
-    const hsl = this.hsl().channels;
-
-    return hsl[2];
-  }
-
+  /**
+   * Returns the WCAG contrast of a color (from 1-21)
+   */
   contrast(col: Color) {
     const lum1 = this.luminosity();
     const lum2 = col.luminosity();
@@ -452,38 +579,163 @@ export class Color {
     return (lum2 + 0.05) / (lum1 + 0.05);
   }
 
+  /**
+   * Returns if the color is dark (useful for making text black or white)
+   */
   isDark() {
     const rgb = this.rgb().channels;
 
     return (rgb[0] * 2126 + rgb[1] * 7152 + rgb[2] * 722) / 10000 < 128;
   }
 
+  /**
+   * Returns if the color is light (useful for making text black or white)
+   */
   isLight() {
     return !this.isDark();
   }
 
   // operations
+  /**
+   * Sets the red component of a color
+   */
   setRed(value: number) {
     const rgb = this.rgb().channels;
-    const negated = Color.rgb(value, rgb[1], rgb[2]);
+    const newColor = Color.rgb(value, rgb[1], rgb[2]);
 
-    return negated.toType(this.type);
+    return newColor.toType(this.type);
   }
 
+  /**
+   * Sets the green component of a color
+   */
   setGreen(value: number) {
     const rgb = this.rgb().channels;
-    const negated = Color.rgb(rgb[0], value, rgb[2]);
+    const newColor = Color.rgb(rgb[0], value, rgb[2]);
 
-    return negated.toType(this.type);
+    return newColor.toType(this.type);
   }
 
+  /**
+   * Sets the blue component of a color
+   */
   setBlue(value: number) {
     const rgb = this.rgb().channels;
-    const negated = Color.rgb(rgb[0], rgb[1], value);
+    const newColor = Color.rgb(rgb[0], rgb[1], value);
 
-    return negated.toType(this.type);
+    return newColor.toType(this.type);
   }
 
+  /**
+   * Sets the alpha component of a color. This typecasts hsl->hsla, hsv->hsva, and rgb->rgba
+   */
+  setAlpha(value: number) {
+    const rgba = this.rgba().channels;
+    const faded = Color.rgba(
+      rgba[0],
+      rgba[1],
+      rgba[2],
+      value,
+    );
+
+    switch (this.type) {
+      case "cmyk":
+        return faded.toType("cmyk");
+      case "hsla":
+      case "hsl":
+        return faded.toType("hsla");
+      case "hsva":
+      case "hsv":
+        return faded.toType("hsva");
+      case "rgba":
+      case "rgb":
+        return faded.toType("rgba");
+    }
+  }
+
+  /**
+   * Sets the hue component of a color
+   */
+  setHue(value: number) {
+    const hsl = this.hsl().channels;
+    const newColor = Color.hsl(value, hsl[1], hsl[2]);
+
+    return newColor.toType(this.type);
+  }
+
+  /**
+   * Sets the saturation component of a color
+   */
+  setSaturation(value: number) {
+    const hsl = this.hsl().channels;
+    const newColor = Color.hsl(hsl[0], value, hsl[2]);
+
+    return newColor.toType(this.type);
+  }
+
+  /**
+   * Sets the lightness component of a color
+   */
+  setLightness(value: number) {
+    const hsl = this.hsl().channels;
+    const newColor = Color.hsl(hsl[0], hsl[1], value);
+
+    return newColor.toType(this.type);
+  }
+
+  /**
+   * Sets the value component of a color
+   */
+  setValue(value: number) {
+    const hsv = this.hsv().channels;
+    const newColor = Color.hsv(hsv[0], hsv[1], value);
+
+    return newColor.toType(this.type);
+  }
+
+  /**
+   * Sets the cyan component of a color
+   */
+  setCyan(value: number) {
+    const cmyk = this.cmyk().channels;
+    const newColor = Color.cmyk(value, cmyk[1], cmyk[2], cmyk[3]);
+
+    return newColor.toType(this.type);
+  }
+
+  /**
+   * Sets the magenta component of a color
+   */
+  setMagenta(value: number) {
+    const cmyk = this.cmyk().channels;
+    const newColor = Color.cmyk(cmyk[0], value, cmyk[2], cmyk[3]);
+
+    return newColor.toType(this.type);
+  }
+
+  /**
+   * Sets the yellow component of a color
+   */
+  setYellow(value: number) {
+    const cmyk = this.cmyk().channels;
+    const newColor = Color.cmyk(cmyk[0], cmyk[1], value, cmyk[3]);
+
+    return newColor.toType(this.type);
+  }
+
+  /**
+   * Sets the black component of a color
+   */
+  setBlack(value: number) {
+    const cmyk = this.cmyk().channels;
+    const newColor = Color.cmyk(cmyk[0], cmyk[1], cmyk[2], value);
+
+    return newColor.toType(this.type);
+  }
+
+  /**
+   * Negates the color: (255, 5, 0) -> (0, 250, 255)
+   */
   negate() {
     const rgb = this.rgb();
     const negated = Color.rgb(
@@ -495,41 +747,49 @@ export class Color {
     return negated.toType(this.type);
   }
 
+  /**
+   * Lightens the color by some factor
+   */
   lighten(factor: number) {
-    const hsl = this.type === "hsl" ? this.channels : this.hsl().channels;
+    const hsl = this.hsl().channels;
     const lightened = Color.hsl(hsl[0], hsl[1], hsl[2] * (1 + factor));
-
-    return this.type === "hsl" ? lightened : lightened.toType(this.type);
-  }
-
-  darken(factor: number) {
-    const hsl = this.type === "hsl" ? this.channels : this.hsl().channels;
-    const darkened = Color.hsl(hsl[0], hsl[1], hsl[2] * (1 - factor));
-
-    return this.type === "hsl" ? darkened : darkened.toType(this.type);
-  }
-
-  lightness(value: number) {
-    const hsl = this.type === "hsl" ? this.channels : this.hsl().channels;
-    const lightened = Color.hsl(hsl[0], hsl[1], value);
 
     return lightened.toType(this.type);
   }
 
+  /**
+   * Darkens the color by some factor
+   */
+  darken(factor: number) {
+    const hsl = this.hsl().channels;
+    const darkened = Color.hsl(hsl[0], hsl[1], hsl[2] * (1 - factor));
+
+    return darkened.toType(this.type);
+  }
+
+  /**
+   * Saturates the color by some factor
+   */
   saturate(factor: number) {
-    const hsl = this.type === "hsl" ? this.channels : this.hsl().channels;
+    const hsl = this.hsl().channels;
     const lightened = Color.hsl(hsl[0], hsl[1] * (1 + factor), hsl[2]);
 
     return lightened.toType(this.type);
   }
 
+  /**
+   * Desaturates the color by some factor
+   */
   desaturate(factor: number) {
-    const hsl = this.type === "hsl" ? this.channels : this.hsl().channels;
+    const hsl = this.hsl().channels;
     const lightened = Color.hsl(hsl[0], hsl[1] * (1 - factor), hsl[2]);
 
     return lightened.toType(this.type);
   }
 
+  /**
+   * Grayscales the color
+   */
   grayscale() {
     const rgb = this.rgb().channels;
 
@@ -538,6 +798,9 @@ export class Color {
     return Color.rgb(gray, gray, gray);
   }
 
+  /**
+   * Fades the color by some factor, this has the same typecasting rules as setAlpha
+   */
   fade(factor: number) {
     const rgba = this.rgba().channels;
     const faded = Color.rgba(
@@ -562,6 +825,9 @@ export class Color {
     }
   }
 
+  /**
+   * Opaques the color by some factor, this has the same typecasting rules as setAlpha
+   */
   opaquer(factor: number) {
     const rgba = this.rgba().channels;
     const opaqued = Color.rgba(
@@ -586,6 +852,9 @@ export class Color {
     }
   }
 
+  /**
+   * Rotates the color by some degree
+   */
   rotate(value: number) {
     const hsl = this.hsl().channels;
 

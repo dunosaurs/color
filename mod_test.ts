@@ -4,9 +4,27 @@ import { Color } from "./mod.ts";
 Deno.test("Create instance of color through all constuctors", () => {
   const _cmyk = Color.cmyk(77, 0, 9, 11);
   const _hsl = Color.hsl(173, 76, 89);
+  const _hsla = Color.hsla(173, 76, 89, 0.5);
   const _hsv = Color.hsl(173, 77, 55);
+  const _hsva = Color.hsla(173, 77, 55, 0.5);
   const _rgb = Color.rgb(52, 227, 207);
   const _rgba = Color.rgba(52, 227, 207, 0.5);
+});
+
+Deno.test("Test all basic settters", () => {
+  const cmyk = Color.cmyk(77, 0, 9, 11);
+  const hsl = Color.hsl(173, 76, 89);
+  const hsv = Color.hsl(173, 77, 55);
+  const rgb = Color.rgb(52, 227, 207);
+
+  assertEquals(cmyk.setCyan(100).string(), "cmyk(100%, 0%, 9%, 11%)");
+  assertEquals(cmyk.setMagenta(100).string(), "cmyk(77%, 100%, 9%, 11%)");
+  assertEquals(cmyk.setYellow(100).string(), "cmyk(77%, 0%, 100%, 11%)");
+  assertEquals(cmyk.setBlack(100).string(), "cmyk(77%, 0%, 9%, 100%)");
+
+  assertEquals(hsl.setHue(100).string(), "hsl(100, 76%, 89%)");
+  assertEquals(hsl.setSaturation(100).string(), "hsl(173, 100%, 89%)");
+  assertEquals(hsl.setLightness(100).string(), "hsl(173, 76%, 100%)");
 });
 
 Deno.test("README Heading", () => {
@@ -61,7 +79,7 @@ Deno.test("README manipulation", () => {
   assertEquals(brightnessColor2.darken(0.5).string(), "hsl(100, 50%, 0%)");
 
   const lightnessColor = Color.hsl(100, 50, 10);
-  assertEquals(lightnessColor.lightness(50).string(), "hsl(100, 50%, 50%)");
+  assertEquals(lightnessColor.setLightness(50).string(), "hsl(100, 50%, 50%)");
 
   assertEquals(brightnessColor.saturate(0.5).string(), "hsl(100, 75%, 50%)");
   assertEquals(brightnessColor.desaturate(0.5).string(), "hsl(100, 25%, 50%)");
@@ -82,6 +100,3 @@ Deno.test("README manipulation", () => {
     "rgb(260, 260, 260)",
   );
 });
-
-const chainColor = Color.rgb(150, 10, 240);
-console.log(chainColor.luminosity, chainColor.lum);

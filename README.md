@@ -95,7 +95,7 @@ color.lighten(0.5); // hsl(100, 50%, 0)   -> hsl(100, 50%, 0%)
 color.darken(0.5); // hsl(100, 50%, 50%) -> hsl(100, 50%, 25%)
 color.darken(0.5); // hsl(100, 50%, 0)   -> hsl(100, 50%, 0%)
 
-color.lightness(50); // hsl(100, 50%, 10%) -> hsl(100, 50%, 50%)
+color.setLightness(50); // hsl(100, 50%, 10%) -> hsl(100, 50%, 50%)
 
 color.saturate(0.5); // hsl(100, 50%, 50%) -> hsl(100, 75%, 50%)
 color.desaturate(0.5); // hsl(100, 50%, 50%) -> hsl(100, 25%, 50%)
