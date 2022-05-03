@@ -78,3 +78,6 @@ Deno.test("README manipulation", () => {
   assertEquals(chainColor.setGreen(100).grayscale().lighten(0.6).string(), 'rgb(260, 260, 260)');
 
 })
+
+const chainColor = Color.rgb(150, 10, 240)
+console.log(chainColor.luminosity, chainColor.lum)

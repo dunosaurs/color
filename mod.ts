@@ -1,12 +1,14 @@
-type colorTypes = 'rgb' | 'rgba' | 'hsl' | 'hsv' | 'cmyk'
+type colorTypes = 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva' | 'cmyk'
 
 export class Color {
   channels: number[] = []
   type: colorTypes
+  transparency: number
 
-  private constructor(channels: number[], type: colorTypes) {
+  private constructor(channels: number[], type: colorTypes, alpha?: number) {
     this.channels = channels
     this.type = type
+    this.transparency = alpha || 1
   }
 
   // Constructors
@@ -22,7 +24,7 @@ export class Color {
    * Creates a color with a red, green, blue, and alpha value
    */
   static rgba(r: number, g: number, b: number, a: number) {
-    return new Color([Math.round(r), Math.round(g), Math.round(b), a], 'rgba')
+    return new Color([Math.round(r), Math.round(g), Math.round(b)], 'rgba', a)
   }
 
   /**
@@ -35,10 +37,24 @@ export class Color {
   /**
    * Creates a color with a red, green, blue, and alpha value
    */
+  static hsla(h: number, s: number, l: number, a: number) {
+    return new Color([Math.round(h), Math.round(s), Math.round(l)], 'hsla', a)
+  }
+
+  /**
+   * Creates a color with a red, green, blue, and alpha value
+   */
   static hsv(h: number, s: number, v: number) {
     return new Color([Math.round(h), Math.round(s), Math.round(v)], 'hsv')
   }
 
+  /**
+   * Creates a color with a red, green, blue, and alpha value
+   */
+  static hsva(h: number, s: number, v: number, a: number) {
+    return new Color([Math.round(h), Math.round(s), Math.round(v)], 'hsva', a)
+  }
+  
   /**
    * Creates a color with a red, green, blue, and alpha value
    */
@@ -54,12 +70,11 @@ export class Color {
    */
   rgb() {
     switch(this.type) {
+      case "rgba":
       case "rgb":
         return Color.rgb(this.channels[0], this.channels[1], this.channels[2])
 
-      case "rgba":
-        return Color.rgb(this.channels[0], this.channels[1], this.channels[2])
-      
+      case "hsla":
       case "hsl": {
         const h = this.channels[0] / 360
         const s = this.channels[1] / 100
@@ -90,6 +105,7 @@ export class Color {
         return Color.rgb(r * 255, g * 255, b * 255)
       }
 
+      case "hsva":
       case "hsv": {
         const h = this.channels[0] / 360
         const s = this.channels[1] / 100
@@ -133,20 +149,16 @@ export class Color {
    * Converts from current type to rgba
    */
   rgba() {
-    const rgb = this.rgb()
+    const rgb = this.rgb().channels
 
-    if(this.type === 'rgba') {
-      return Color.rgba(this.channels[0], this.channels[1], this.channels[2], this.channels[3])
-    } else {
-      return Color.rgba(rgb.channels[0], rgb.channels[1], rgb.channels[2], 1)
-    }
+    return Color.rgba(rgb[0], rgb[1], rgb[2], this.transparency)
   }
 
   /**
-   * Converts from current type to rgba
+   * Converts from current type to hsl
    */
   hsl() {
-    const rgb = this.rgb().channels
+    const rgb = this.rgba().channels
 
     const r = rgb[0] / 255
     const g = rgb[1] / 255
@@ -176,10 +188,19 @@ export class Color {
   }
 
   /**
-   * Converts from current type to rgba
+   * Converts from current type to hsla
+   */
+  hsla() {
+    const hsl = this.hsl().channels
+
+    return Color.hsla(hsl[0], hsl[1], hsl[2], this.transparency)
+  }
+
+  /**
+   * Converts from current type to hsv
    */
    hsv() {
-    const rgb = this.rgb().channels
+    const rgb = this.rgba().channels
 
     const r = rgb[0]
     const g = rgb[1]
@@ -202,8 +223,17 @@ export class Color {
     return Color.hsv(h * 360, s * 100, v * 100)
   }
 
+  /**
+   * Converts from current type to hsva
+   */
+    hsva() {
+    const hsv = this.hsv().channels
+
+    return Color.hsva(hsv[0], hsv[1], hsv[2], this.transparency)
+  }
+
   cmyk() {
-    const rgb = this.rgb().channels
+    const rgb = this.rgba().channels
     const r = rgb[0] / 255
     const g = rgb[1] / 255
     const b = rgb[2] / 255
@@ -230,8 +260,14 @@ export class Color {
       case "hsl":
         return this.hsl()
 
+      case "hsla":
+        return this.hsla()
+
       case "hsv":
         return this.hsv()
+
+      case "hsva":
+        return this.hsva()
 
       case "cmyk":
         return this.cmyk()
@@ -240,17 +276,24 @@ export class Color {
 
   // getters
   object() {
-    const rgb = this.rgb().channels
-
-    return {
-      r: rgb[0],
-      g: rgb[1],
-      b: rgb[2]
+    const c = this.channels
+    switch (this.type) {
+      case "cmyk": return {c:c[0], m: c[1], y: c[2], k: c[3]}
+      case "hsl": return {h: c[0], s: c[1], l: c[2]}
+      case "hsla": return {h: c[0], s: c[1], l: c[2], a: this.transparency}
+      case "hsv": return {h: c[0], s: c[1], v: c[2]}
+      case "hsva": return {h: c[0], s: c[1], v: c[2], a: this.transparency}
+      case "rgb": return {r: c[0], g: c[1], b:c[2]}
+      case "rgba": return {r: c[0], g: c[1], b:c[2], a: this.transparency}
     }
   }
 
   array() {
-    return this.channels
+    if(this.transparency === 1) {
+      return this.channels
+    }
+
+    return [...this.channels, this.transparency]
   }
 
   rgbNumber() {
@@ -267,6 +310,17 @@ export class Color {
     const b = rgb[2].toString(16)
 
     return `#${(r.length === 1 ? "0": "")+r}${(g.length === 1 ? "0": "")+g}${(b.length === 1 ? "0": "")+b}`
+  }
+
+  hexa() {
+    const rgb = this.rgb().channels
+
+    const r = rgb[0].toString(16)
+    const g = rgb[1].toString(16)
+    const b = rgb[2].toString(16)
+    const a = Math.round(this.transparency * 255).toString(16)
+
+    return `#${(r.length === 1 ? "0": "")+r}${(g.length === 1 ? "0": "")+g}${(b.length === 1 ? "0": "")+b}${(a.length === 1 ? "0": "")+a}`
   }
 
   red() {
@@ -287,13 +341,19 @@ export class Color {
     return rgb.channels[2]
   }
 
+  alpha() {
+    return this.transparency
+  }
+
   string() {
     switch (this.type) {
       case "cmyk": return `cmyk(${this.channels[0]}%, ${this.channels[1]}%, ${this.channels[2]}%, ${this.channels[3]}%)`
       case "hsl": return `hsl(${this.channels[0]}, ${this.channels[1]}%, ${this.channels[2]}%)`
+      case "hsla": return `hsla(${this.channels[0]}, ${this.channels[1]}%, ${this.channels[2]}, ${this.transparency})`
       case "hsv": return `hsv(${this.channels[0]}, ${this.channels[1]}%, ${this.channels[2]}%)`
+      case "hsva": return `hsva(${this.channels[0]}, ${this.channels[1]}%, ${this.channels[2]}%, ${this.transparency})`
       case "rgb": return `rgb(${this.channels[0]}, ${this.channels[1]}, ${this.channels[2]})`
-      case "rgba": return `rgba(${this.channels[0]}, ${this.channels[1]}, ${this.channels[2]}, ${this.channels[3]})`
+      case "rgba": return `rgba(${this.channels[0]}, ${this.channels[1]}, ${this.channels[2]}, ${this.transparency})`
     }
   }
 
@@ -308,6 +368,12 @@ export class Color {
     const b_s = b <=  0.03928 ? b / 12.92 : Math.pow((b+0.055)/1.055, 2.4)
 
     return 0.2126 * r_s + 0.7152 * g_s + 0.0722 * b_s
+  }
+
+  lum() {
+    const hsl = this.hsl().channels
+
+    return hsl[2]
   }
 
   contrast(col: Color) {
@@ -405,16 +471,32 @@ export class Color {
 
   fade(factor: number) {
     const rgba = this.rgba().channels
-    const faded = Color.rgba(rgba[0], rgba[1], rgba[2], rgba[3] * (1 - factor))
+    const faded = Color.rgba(rgba[0], rgba[1], rgba[2], this.transparency * (1 - factor))
 
-    return faded
+    switch (this.type) {
+      case "cmyk": return faded.toType('cmyk')
+      case "hsla":
+      case "hsl": return faded.toType('hsla')
+      case "hsva":
+      case "hsv": return faded.toType('hsva')
+      case "rgba":
+      case "rgb": return faded.toType('rgba')
+    }
   }
 
   opaquer(factor: number) {
     const rgba = this.rgba().channels
-    const opaqued = Color.rgba(rgba[0], rgba[1], rgba[2], Math.min(rgba[3] * (1 + factor), 1))
+    const opaqued = Color.rgba(rgba[0], rgba[1], rgba[2], Math.min(this.transparency * (1 + factor), 1))
 
-    return opaqued
+    switch (this.type) {
+      case "cmyk": return opaqued.toType('cmyk')
+      case "hsla":
+      case "hsl": return opaqued.toType('hsla')
+      case "hsva":
+      case "hsv": return opaqued.toType('hsva')
+      case "rgba":
+      case "rgb": return opaqued.toType('rgba')
+    }
   }
 
   rotate(value: number) {

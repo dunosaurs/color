@@ -110,7 +110,6 @@ color.setGreen(100).grayscale().lighten(0.6)
 
 ## TODOs
 
-- [ ] Refactor code to allow opacity to all color spaces
 - [ ] Add HWB color space
 - [ ] Add color mixing
 
