@@ -14,7 +14,7 @@ Deno.test("Create instance of color through all constuctors", () => {
 Deno.test("Test all basic settters", () => {
   const cmyk = Color.cmyk(77, 0, 9, 11);
   const hsl = Color.hsl(173, 76, 89);
-  const hsv = Color.hsl(173, 77, 55);
+  const hsv = Color.hsv(173, 77, 55);
   const rgb = Color.rgb(52, 227, 207);
 
   assertEquals(cmyk.setCyan(100).string(), "cmyk(100%, 0%, 9%, 11%)");
@@ -25,6 +25,23 @@ Deno.test("Test all basic settters", () => {
   assertEquals(hsl.setHue(100).string(), "hsl(100, 76%, 89%)");
   assertEquals(hsl.setSaturation(100).string(), "hsl(173, 100%, 89%)");
   assertEquals(hsl.setLightness(100).string(), "hsl(173, 76%, 100%)");
+
+  assertEquals(hsv.setValue(100).string(), "hsv(173, 77%, 100%)");
+
+  assertEquals(rgb.setRed(100).string(), "rgb(100, 227, 207)");
+  assertEquals(rgb.setGreen(100).string(), "rgb(52, 100, 207)");
+  assertEquals(rgb.setBlue(100).string(), "rgb(52, 227, 100)");
+});
+
+Deno.test("Test color mixing", () => {
+  const red = Color.rgb(255, 0, 0);
+  const blue = Color.rgb(0, 0, 255);
+
+  assertEquals(red.mix(blue, 0).string(), "rgb(255, 0, 0)");
+  assertEquals(red.mix(blue, 0.25).string(), "rgb(191, 0, 64)");
+  assertEquals(red.mix(blue).string(), "rgb(128, 0, 128)");
+  assertEquals(red.mix(blue, 0.75).string(), "rgb(64, 0, 191)");
+  assertEquals(red.mix(blue, 1).string(), "rgb(0, 0, 255)");
 });
 
 Deno.test("README Heading", () => {
@@ -99,4 +116,10 @@ Deno.test("README manipulation", () => {
     chainColor.setGreen(100).grayscale().lighten(0.6).string(),
     "rgb(260, 260, 260)",
   );
+});
+
+Deno.test("README Color space conversions", () => {
+  const color = Color.rgb(255, 0, 0);
+  assertEquals(color.setBlack(255).string(), "rgb(0, 0, 0)");
+  assertEquals(color.setHue(200).string(), "rgb(0, 170, 255)");
 });

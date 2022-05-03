@@ -868,4 +868,30 @@ export class Color {
 
     return rotated.toType(this.type);
   }
+
+  /**
+   * Mixes two colors by a specified weight.
+   * @param mixColor Color to mix this color with
+   * @param weight the amount of weight this color should have (defaults to 1/2)
+   */
+  mix(mixColor: Color, weight = 0.5) {
+    const color1 = mixColor.rgb();
+    const color2 = this.rgb();
+
+    const p = weight;
+    const w = 2 * p - 1;
+    const a = color1.alpha() - color2.alpha();
+
+    const w1 = (((w * a === -1) ? w : (w + a) / (1 + w * a)) + 1) / 2;
+    const w2 = 1 - w1;
+
+    const mixedColor = Color.rgba(
+      w1 * color1.red() + w2 * color2.red(),
+      w1 * color1.green() + w2 * color2.green(),
+      w1 * color1.blue() + w2 * color2.blue(),
+      color1.alpha() * p + color2.alpha() * (1 - p),
+    );
+
+    return mixedColor.toType(this.type);
+  }
 }

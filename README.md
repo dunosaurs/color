@@ -107,14 +107,27 @@ color.opaquer(0.5); // rgba(10, 10, 10, 0.8) -> rgba(10, 10, 10, 1)
 color.rotate(180); // hsl(60, 20%, 20%) -> hsl(240, 20%, 20%)
 color.rotate(-90); // hsl(60, 20%, 20%) -> hsl(330, 20%, 20%)
 
+red.mix(blue); // rgb(255, 0, 0) -> rgb(128, 0, 128)
+red.mix(blue, 0.75); // rgb(255, 0, 0) -> rgb(64, 0, 191)
+
 // chaining
 color.setGreen(100).grayscale().lighten(0.6);
+```
+
+## Color-Space Conversions
+
+Color space rules can be mixed together, and all of the color-space conversions
+happen behind the scenes!
+
+```typescript
+const rgb = Color.rgb(255, 0, 0);
+color.setBlack(255); // rgb(255, 0, 0) -> rgb(0, 0, 0)
+color.setHue(200); // rgb(255, 0, 0) -> rgb(0, 170, 255)
 ```
 
 ## TODOs
 
 - [ ] Add HWB color space
-- [ ] Add color mixing
 
 ## Propers
 
