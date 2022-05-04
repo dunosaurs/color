@@ -1,4 +1,13 @@
-type colorTypes = "rgb" | "rgba" | "hsl" | "hsla" | "hsv" | "hsva" | "cmyk";
+type colorTypes =
+  | "rgb"
+  | "rgba"
+  | "hsl"
+  | "hsla"
+  | "hsv"
+  | "hsva"
+  | "hwb"
+  | "hwba"
+  | "cmyk";
 
 export class Color {
   channels: number[] = [];
@@ -53,6 +62,20 @@ export class Color {
    */
   static hsva(h: number, s: number, v: number, a: number) {
     return new Color([Math.round(h), Math.round(s), Math.round(v)], "hsva", a);
+  }
+
+  /**
+   * Creates a color with a hue, saturation, and value
+   */
+  static hwb(h: number, w: number, b: number) {
+    return new Color([Math.round(h), Math.round(w), Math.round(b)], "hwb");
+  }
+
+  /**
+   * Creates a color with a hue, saturation, value, and alpha
+   */
+  static hwba(h: number, w: number, b: number, a: number) {
+    return new Color([Math.round(h), Math.round(w), Math.round(b)], "hwba", a);
   }
 
   /**
@@ -139,6 +162,70 @@ export class Color {
             break;
           case 5:
             r = v, g = p, b = q;
+            break;
+        }
+
+        return Color.rgb(r, g, b);
+      }
+
+      case "hwba":
+      case "hwb": {
+        const h = this.channels[0] / 360;
+        let wh = this.channels[1] / 100;
+        let bl = this.channels[2] / 100;
+        const ratio = wh + bl;
+        let f;
+
+        if (ratio > 1) {
+          wh /= ratio;
+          bl /= ratio;
+        }
+
+        const i = Math.floor(6 * h);
+        const v = 1 - bl;
+        f = 6 * h - i;
+
+        if ((i & 0x01) !== 0) {
+          f = 1 - f;
+        }
+
+        const n = wh + f * (v - wh);
+
+        let r;
+        let g;
+        let b;
+        switch (i) {
+          default:
+          case 6:
+          case 0:
+            r = v;
+            g = n;
+            b = wh;
+            break;
+          case 1:
+            r = n;
+            g = v;
+            b = wh;
+            break;
+          case 2:
+            r = wh;
+            g = v;
+            b = n;
+            break;
+          case 3:
+            r = wh;
+            g = n;
+            b = v;
+            break;
+          case 4:
+            r = n;
+            g = wh;
+            b = v;
+            break;
+          case 5:
+            r = v;
+            g = wh;
+            b = n;
             break;
         }
 
@@ -300,6 +387,36 @@ export class Color {
   }
 
   /**
+   * Converts from current type to hsb
+   */
+  hwb() {
+    const hsv = this.hsv().channels;
+    const h = hsv[0] / 360;
+    const s = hsv[1] / 100;
+    const v = hsv[2] / 100;
+
+    return Color.hwb(h * 360, ((1 - s) * v) * 100, (1 - v) * 100);
+  }
+
+  /**
+   * Converts from current type to hsva
+   */
+  hwba() {
+    if (this.type === "hwba") {
+      return Color.hwba(
+        this.channels[0],
+        this.channels[1],
+        this.channels[2],
+        this.transparency,
+      );
+    }
+
+    const hwb = this.hwb().channels;
+
+    return Color.hwba(hwb[0], hwb[1], hwb[2], this.transparency);
+  }
+
+  /**
    * Converts from current type to cmyk
    */
   cmyk() {
@@ -348,6 +465,12 @@ export class Color {
       case "hsva":
         return this.hsva();
 
+      case "hwb":
+        return this.hwb();
+
+      case "hwba":
+        return this.hwba();
+
       case "cmyk":
         return this.cmyk();
     }
@@ -371,6 +494,10 @@ export class Color {
         return { h: c[0], s: c[1], v: c[2] };
       case "hsva":
         return { h: c[0], s: c[1], v: c[2], a: this.transparency };
+      case "hwb":
+        return { h: c[0], w: c[1], b: c[2] };
+      case "hwba":
+        return { h: c[0], w: c[1], b: c[2], a: this.transparency };
       case "rgb":
         return { r: c[0], g: c[1], b: c[2] };
       case "rgba":
@@ -486,6 +613,20 @@ export class Color {
   }
 
   /**
+   * Returns the whiteness component of a color
+   */
+  whiteness() {
+    return this.hwb().channels[1];
+  }
+
+  /**
+   * Returns the blackness component of a color
+   */
+  blackness() {
+    return this.hwb().channels[2];
+  }
+
+  /**
    * Returns the cyan component of a color
    */
   cyan() {
@@ -536,6 +677,14 @@ export class Color {
         }%)`;
       case "hsva":
         return `hsva(${this.channels[0]}, ${this.channels[1]}%, ${
+          this.channels[2]
+        }%, ${this.transparency})`;
+      case "hwb":
+        return `hwb(${this.channels[0]}, ${this.channels[1]}%, ${
+          this.channels[2]
+        }%)`;
+      case "hwba":
+        return `hwba(${this.channels[0]}, ${this.channels[1]}%, ${
           this.channels[2]
         }%, ${this.transparency})`;
       case "rgb":
@@ -647,6 +796,9 @@ export class Color {
       case "hsva":
       case "hsv":
         return faded.toType("hsva");
+      case "hwba":
+      case "hwb":
+        return faded.toType("hwba");
       case "rgba":
       case "rgb":
         return faded.toType("rgba");
@@ -689,6 +841,26 @@ export class Color {
   setValue(value: number) {
     const hsv = this.hsv().channels;
     const newColor = Color.hsv(hsv[0], hsv[1], value);
+
+    return newColor.toType(this.type);
+  }
+
+  /**
+   * Sets the value component of a color
+   */
+  setWhiteness(value: number) {
+    const hwb = this.hwb().channels;
+    const newColor = Color.hwb(hwb[0], value, hwb[2]);
+
+    return newColor.toType(this.type);
+  }
+
+  /**
+   * Sets the value component of a color
+   */
+  setBlackness(value: number) {
+    const hwb = this.hwb().channels;
+    const newColor = Color.hwb(hwb[0], hwb[1], value);
 
     return newColor.toType(this.type);
   }
@@ -819,6 +991,9 @@ export class Color {
       case "hsva":
       case "hsv":
         return faded.toType("hsva");
+      case "hwba":
+      case "hwb":
+        return faded.toType("hwba");
       case "rgba":
       case "rgb":
         return faded.toType("rgba");
@@ -846,6 +1021,9 @@ export class Color {
       case "hsva":
       case "hsv":
         return opaqued.toType("hsva");
+      case "hwba":
+      case "hwb":
+        return opaqued.toType("hwba");
       case "rgba":
       case "rgb":
         return opaqued.toType("rgba");

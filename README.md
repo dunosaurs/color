@@ -125,10 +125,6 @@ color.setBlack(255); // rgb(255, 0, 0) -> rgb(0, 0, 0)
 color.setHue(200); // rgb(255, 0, 0) -> rgb(0, 170, 255)
 ```
 
-## TODOs
-
-- [ ] Add HWB color space
-
 ## Propers
 
 Heavily inspired by: [Color](https://github.com/Qix-/color)
