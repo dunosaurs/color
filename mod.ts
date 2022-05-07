@@ -65,17 +65,25 @@ export class Color {
   }
 
   /**
-   * Creates a color with a hue, saturation, and value
+   * Creates a color with a hue, whiteness, and blackness value
    */
   static hwb(h: number, w: number, b: number) {
-    return new Color([Math.round(h), Math.round(w), Math.round(b)], "hwb");
+    if(w+b>100) {
+      return new Color([Math.round(h), Math.round(((w)/(w+b))*100), Math.round(((b)/(w+b))*100)], "hwb");
+    } else {
+      return new Color([Math.round(h), Math.round(w), Math.round(b)], "hwb");
+    }
   }
 
   /**
-   * Creates a color with a hue, saturation, value, and alpha
+   * Creates a color with a hue, whiteness, blackness, and alpha
    */
   static hwba(h: number, w: number, b: number, a: number) {
-    return new Color([Math.round(h), Math.round(w), Math.round(b)], "hwba", a);
+    if(w+b>100) {
+      return new Color([Math.round(h), Math.round(((w)/(w+b))*100), Math.round(((b)/(w+b))*100)], "hwba", a);
+    } else {
+      return new Color([Math.round(h), Math.round(w), Math.round(b)], "hwba", a);
+    }
   }
 
   /**
@@ -394,6 +402,10 @@ export class Color {
     const h = hsv[0] / 360;
     const s = hsv[1] / 100;
     const v = hsv[2] / 100;
+
+    if (this.type === "hwb") {
+      return Color.hwb(this.channels[0], this.channels[1], this.channels[2]);
+    }
 
     return Color.hwb(h * 360, ((1 - s) * v) * 100, (1 - v) * 100);
   }
@@ -846,7 +858,7 @@ export class Color {
   }
 
   /**
-   * Sets the value component of a color
+   * Sets the whiteness component of a color
    */
   setWhiteness(value: number) {
     const hwb = this.hwb().channels;
@@ -856,7 +868,7 @@ export class Color {
   }
 
   /**
-   * Sets the value component of a color
+   * Sets the blackness component of a color
    */
   setBlackness(value: number) {
     const hwb = this.hwb().channels;

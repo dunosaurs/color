@@ -7,6 +7,8 @@ Deno.test("Create instance of color through all constuctors", () => {
   const _hsla = Color.hsla(173, 76, 89, 0.5);
   const _hsv = Color.hsl(173, 77, 55);
   const _hsva = Color.hsla(173, 77, 55, 0.5);
+  const _hwb = Color.hwb(173, 20, 10);
+  const _hwba = Color.hwba(173, 20, 10, 0.5);
   const _rgb = Color.rgb(52, 227, 207);
   const _rgba = Color.rgba(52, 227, 207, 0.5);
 });
@@ -15,6 +17,7 @@ Deno.test("Test all basic settters", () => {
   const cmyk = Color.cmyk(77, 0, 9, 11);
   const hsl = Color.hsl(173, 76, 89);
   const hsv = Color.hsv(173, 77, 55);
+  const hwb = Color.hwb(173, 20, 10);
   const rgb = Color.rgb(52, 227, 207);
 
   assertEquals(cmyk.setCyan(100).string(), "cmyk(100%, 0%, 9%, 11%)");
@@ -27,6 +30,9 @@ Deno.test("Test all basic settters", () => {
   assertEquals(hsl.setLightness(100).string(), "hsl(173, 76%, 100%)");
 
   assertEquals(hsv.setValue(100).string(), "hsv(173, 77%, 100%)");
+
+  assertEquals(hwb.setWhiteness(100).string(), "hwb(173, 91%, 9%)");
+  assertEquals(hwb.setBlackness(100).string(), "hwb(173, 17%, 83%)");
 
   assertEquals(rgb.setRed(100).string(), "rgb(100, 227, 207)");
   assertEquals(rgb.setGreen(100).string(), "rgb(52, 100, 207)");
