@@ -68,8 +68,12 @@ export class Color {
    * Creates a color with a hue, whiteness, and blackness value
    */
   static hwb(h: number, w: number, b: number) {
-    if(w+b>100) {
-      return new Color([Math.round(h), Math.round(((w)/(w+b))*100), Math.round(((b)/(w+b))*100)], "hwb");
+    if (w + b > 100) {
+      return new Color([
+        Math.round(h),
+        Math.round(((w) / (w + b)) * 100),
+        Math.round(((b) / (w + b)) * 100),
+      ], "hwb");
     } else {
       return new Color([Math.round(h), Math.round(w), Math.round(b)], "hwb");
     }
@@ -79,10 +83,22 @@ export class Color {
    * Creates a color with a hue, whiteness, blackness, and alpha
    */
   static hwba(h: number, w: number, b: number, a: number) {
-    if(w+b>100) {
-      return new Color([Math.round(h), Math.round(((w)/(w+b))*100), Math.round(((b)/(w+b))*100)], "hwba", a);
+    if (w + b > 100) {
+      return new Color(
+        [
+          Math.round(h),
+          Math.round(((w) / (w + b)) * 100),
+          Math.round(((b) / (w + b)) * 100),
+        ],
+        "hwba",
+        a,
+      );
     } else {
-      return new Color([Math.round(h), Math.round(w), Math.round(b)], "hwba", a);
+      return new Color(
+        [Math.round(h), Math.round(w), Math.round(b)],
+        "hwba",
+        a,
+      );
     }
   }
 
@@ -488,6 +504,28 @@ export class Color {
     }
   }
 
+  /**
+   * Converts from current type to a version of type with alpha value
+   */
+  toTransparent(type: colorTypes) {
+    switch (type) {
+      case "cmyk":
+        return this.toType("cmyk");
+      case "hsla":
+      case "hsl":
+        return this.toType("hsla");
+      case "hsva":
+      case "hsv":
+        return this.toType("hsva");
+      case "hwba":
+      case "hwb":
+        return this.toType("hwba");
+      case "rgba":
+      case "rgb":
+        return this.toType("rgba");
+    }
+  }
+
   // getters
 
   /**
@@ -799,22 +837,7 @@ export class Color {
       value,
     );
 
-    switch (this.type) {
-      case "cmyk":
-        return faded.toType("cmyk");
-      case "hsla":
-      case "hsl":
-        return faded.toType("hsla");
-      case "hsva":
-      case "hsv":
-        return faded.toType("hsva");
-      case "hwba":
-      case "hwb":
-        return faded.toType("hwba");
-      case "rgba":
-      case "rgb":
-        return faded.toType("rgba");
-    }
+    return faded.toTransparent(this.type);
   }
 
   /**
@@ -994,22 +1017,7 @@ export class Color {
       this.transparency * (1 - factor),
     );
 
-    switch (this.type) {
-      case "cmyk":
-        return faded.toType("cmyk");
-      case "hsla":
-      case "hsl":
-        return faded.toType("hsla");
-      case "hsva":
-      case "hsv":
-        return faded.toType("hsva");
-      case "hwba":
-      case "hwb":
-        return faded.toType("hwba");
-      case "rgba":
-      case "rgb":
-        return faded.toType("rgba");
-    }
+    return faded.toTransparent(this.type);
   }
 
   /**
@@ -1024,22 +1032,7 @@ export class Color {
       Math.min(this.transparency * (1 + factor), 1),
     );
 
-    switch (this.type) {
-      case "cmyk":
-        return opaqued.toType("cmyk");
-      case "hsla":
-      case "hsl":
-        return opaqued.toType("hsla");
-      case "hsva":
-      case "hsv":
-        return opaqued.toType("hsva");
-      case "hwba":
-      case "hwb":
-        return opaqued.toType("hwba");
-      case "rgba":
-      case "rgb":
-        return opaqued.toType("rgba");
-    }
+    return opaqued.toTransparent(this.type);
   }
 
   /**
