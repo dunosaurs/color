@@ -1,4 +1,4 @@
-import { assertEquals } from "./test_deps.ts";
+import { assertEquals } from "std/testing/asserts.ts";
 import { Color } from "./mod.ts";
 
 Deno.test("Create instance of color through all constuctors", () => {
