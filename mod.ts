@@ -48,8 +48,8 @@ export class Color {
       return new Color(channelsCMYK.map((c) => Number.parseInt(c)), cmyk);
     }
 
-    const [, type, ...channels] = input.match(
-      /^(rgba?|hsla?|hsva?|hwba?)\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,?\s*((0|1)(\.\d*)?)\s*\)$/i,
+    const [, type, ...channels] = input.replace(/%/g, "").match(
+      /^(rgba?|hsla?|hsva?|hwba?)\s*\(\s*(\d+)\s*,\s*(\d+)?\s*,\s*(\d+)?\s*,?\s*((0|1)(\.\d*)?)\s*\)$/i,
     ) ?? [];
 
     if (type && channels.length >= 3) {
