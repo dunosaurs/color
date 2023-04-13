@@ -1,20 +1,37 @@
-type colorTypes =
-  | "rgb"
-  | "rgba"
-  | "hsl"
-  | "hsla"
-  | "hsv"
-  | "hsva"
-  | "hwb"
-  | "hwba"
-  | "cmyk";
+const COLOR_TYPES = [
+  "rgb",
+  "rgba",
+  "hsl",
+  "hsla",
+  "hsv",
+  "hsva",
+  "hwb",
+  "hwba",
+  "cmyk",
+] as const;
+
+type ColorTypes = (typeof COLOR_TYPES)[number];
+
+const isColorType = (type: string): type is ColorTypes =>
+  COLOR_TYPES.includes(type as ColorTypes);
+
+const parseNumber = (num: string) => {
+  const float = Number.parseFloat(num);
+  const factor = num.includes("rad")
+    ? (360 / (2 * Math.PI))
+    : num.includes("turn")
+    ? 360
+    : 1;
+
+  return float * factor;
+};
 
 export class Color {
   channels: number[] = [];
-  type: colorTypes;
+  type: ColorTypes;
   transparency: number;
 
-  private constructor(channels: number[], type: colorTypes, alpha?: number) {
+  private constructor(channels: number[], type: ColorTypes, alpha?: number) {
     this.channels = channels;
     this.type = type;
     this.transparency = alpha || 1;
@@ -41,23 +58,18 @@ export class Color {
       ], "rgb");
     }
 
-    const [, cmyk, ...channelsCMYK] = input.match(
-      /^(cmyk)\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(,\s*(\d+)\s*)?\)$/i,
-    ) ?? [];
-    if (cmyk === "cmyk" && channelsCMYK.length === 4) {
-      return new Color(channelsCMYK.map((c) => Number.parseInt(c)), cmyk);
-    }
+    const { type, args } = input.match(
+      /^(?<type>rgba?|hsla?|hsva?|hwba?|cmyk)\((?<args>.*)\)/i,
+    )?.groups ?? {};
+    if (isColorType(type) && args) {
+      const channels = args.split(/\s|,/)
+        .map((arg) => arg.trim())
+        .filter((arg) => arg && !arg.match(/,|\//i))
+        .map(parseNumber);
 
-    const [, type, ...channels] = input.replace(/%/g, "").match(
-      /^(rgba?|hsla?|hsva?|hwba?)\s*\(\s*(\d+)\s*,\s*(\d+)?\s*,\s*(\d+)?\s*,?\s*((0|1)(\.\d*)?)\s*\)$/i,
-    ) ?? [];
-
-    if (type && channels.length >= 3) {
-      return new Color(
-        channels.slice(0, 3).map((c) => Number.parseInt(c)),
-        type as colorTypes,
-        Number(channels[3]),
-      );
+      if (channels.length === 3 || channels.length === 4) {
+        return Color[type](...channels as [number, number, number, number]);
+      }
     }
 
     throw new Error(`Color ${input} is not a valid color`);
@@ -514,7 +526,7 @@ export class Color {
   /**
    * Converts from current type to a specific type (by string)
    */
-  toType(colorType: colorTypes) {
+  toType(colorType: ColorTypes) {
     switch (colorType) {
       case "rgb":
         return this.rgb();
@@ -548,7 +560,7 @@ export class Color {
   /**
    * Converts from current type to a version of type with alpha value
    */
-  toTransparent(type: colorTypes) {
+  toTransparent(type: ColorTypes) {
     switch (type) {
       case "cmyk":
         return this.toType("cmyk");

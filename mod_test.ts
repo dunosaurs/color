@@ -129,3 +129,27 @@ Deno.test("README Color space conversions", () => {
   assertEquals(color.setBlack(255).string(), "rgb(0, 0, 0)");
   assertEquals(color.setHue(200).string(), "rgb(0, 170, 255)");
 });
+
+Deno.test("README CSS Strings", () => {
+  assertEquals(Color.string("#FDA").hex(), "#ffddaa");
+  assertEquals(
+    Color.string("rgba(150 120 80 / 0.4)").rgba().string(),
+    "rgba(150, 120, 80, 0.4)",
+  );
+  assertEquals(
+    Color.string("hsl(180, 10%, 20%)").hsl().string(),
+    "hsl(180, 10%, 20%)",
+  );
+  assertEquals(
+    Color.string("hsla(180, 10%, 20%, 0.2)").hsla().string(),
+    "hsla(180, 10%, 20, 0.2)",
+  );
+  assertEquals(
+    Color.string("cmyk(100%, 0%, 0%, 0%)").cmyk().string(),
+    "cmyk(100%, 0%, 0%, 0%)",
+  );
+  assertEquals(
+    Color.string("hwba(0.5turn 10% 0% / .5)").hwba().string(),
+    "hwba(180, 10%, 0%, 0.5)",
+  );
+});
