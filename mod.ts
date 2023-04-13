@@ -25,20 +25,20 @@ export class Color {
   static string(input: string) {
     const [, threeDigitHex] = input.match(/^#([0-9a-f]{3})$/i) ?? [];
     if (threeDigitHex) {
-      return [
+      return new Color([
         Number.parseInt(threeDigitHex.charAt(0), 16) * 0x11,
         Number.parseInt(threeDigitHex.charAt(1), 16) * 0x11,
         Number.parseInt(threeDigitHex.charAt(2), 16) * 0x11,
-      ];
+      ], "rgb");
     }
 
     const [, sixDigitHex] = input.match(/^#([0-9a-f]{6})$/i) ?? [];
     if (sixDigitHex) {
-      return [
+      return new Color([
         Number.parseInt(sixDigitHex.substring(0, 2), 16),
         Number.parseInt(sixDigitHex.substring(2, 4), 16),
         Number.parseInt(sixDigitHex.substring(4, 6), 16),
-      ];
+      ], "rgb");
     }
 
     const [, cmyk, ...channelsCMYK] = input.match(
