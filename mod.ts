@@ -22,6 +22,47 @@ export class Color {
 
   // Constructors
 
+  static string(input: string) {
+    const [, threeDigitHex] = input.match(/^#([0-9a-f]{3})$/i) ?? [];
+    if (threeDigitHex) {
+      return [
+        Number.parseInt(threeDigitHex.charAt(0), 16) * 0x11,
+        Number.parseInt(threeDigitHex.charAt(1), 16) * 0x11,
+        Number.parseInt(threeDigitHex.charAt(2), 16) * 0x11,
+      ];
+    }
+
+    const [, sixDigitHex] = input.match(/^#([0-9a-f]{6})$/i) ?? [];
+    if (sixDigitHex) {
+      return [
+        Number.parseInt(sixDigitHex.substring(0, 2), 16),
+        Number.parseInt(sixDigitHex.substring(2, 4), 16),
+        Number.parseInt(sixDigitHex.substring(4, 6), 16),
+      ];
+    }
+
+    const [, cmyk, ...channelsCMYK] = input.match(
+      /^(cmyk)\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(,\s*(\d+)\s*)?\)$/i,
+    ) ?? [];
+    if (cmyk === "cmyk" && channelsCMYK.length === 4) {
+      return new Color(channelsCMYK.map((c) => Number.parseInt(c)), cmyk);
+    }
+
+    const [, type, ...channels] = input.match(
+      /^(rgba?|hsla?|hsva?|hwba?)\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,?\s*((0|1)(\.\d*)?)\s*\)$/i,
+    ) ?? [];
+
+    if (type && channels.length >= 3) {
+      return new Color(
+        channels.slice(0, 3).map((c) => Number.parseInt(c)),
+        type as colorTypes,
+        Number(channels[3]),
+      );
+    }
+
+    throw new Error(`Color ${input} is not a valid color`);
+  }
+
   /**
    * Creates a color with a red, green, and blue value
    */
@@ -366,7 +407,7 @@ export class Color {
     const max = Math.max(r, g, b),
       min = Math.min(r, g, b),
       d = max - min,
-      s = (max === 0 ? 0 : d / max),
+      s = max === 0 ? 0 : d / max,
       v = max / 255;
 
     let h = 0;
