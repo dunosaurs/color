@@ -63,6 +63,16 @@ CSS strings can be generated from a color using the `.string()` method
 color.hsl().string(); // 'hsl(320, 50%, 100%)'
 ```
 
+Also, you can generate Color objects from CSS strings
+
+```typescript
+Color.string("#FDA").hex(); // #ffddaa
+Color.string("hsl(180, 10%, 20%)").hsl().string(); // hsl(180, 10%, 20%)
+Color.string("hsla(180, 10%, 20%, 0.2)").hsla().string(); // hsla(180, 10%, 20%, 0.2)
+Color.string("cmyk(100%, 0%, 0%, 0%)").cmyk().string(); // cmyk(100%, 0%, 0%, 0%)
+Color.string("hwb(12 50% 0%)").hwb().string(); // hwb(12 50% 0%)
+```
+
 ### Luminosity
 
 The WCAG luminosity of the color. 0 is black, 1 is white.
